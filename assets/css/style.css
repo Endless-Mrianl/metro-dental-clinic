@@ -1263,6 +1263,12 @@ body {
     /* Prevent video from being too heavy on mobile */
     max-width: 100%;
     max-height: 100%;
+    /* Force hardware acceleration */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* Optimize for mobile playback */
+    object-fit: cover;
+    object-position: center;
   }
   
   .video-background {
@@ -1271,11 +1277,16 @@ body {
     transform: translateZ(0);
     /* Ensure video background covers the full hero section */
     min-height: 100vh;
+    /* Prevent overflow issues */
+    overflow: hidden;
   }
   
   .hero-overlay {
     /* Better mobile padding */
     padding: 40px 20px;
+    /* Ensure content is above video */
+    position: relative;
+    z-index: 2;
   }
   
   .hero {
@@ -1283,6 +1294,8 @@ body {
     min-height: 100vh;
     display: flex;
     align-items: center;
+    /* Prevent mobile browser UI interference */
+    position: relative;
   }
   
   /* Ensure video doesn't interfere with touch events */
@@ -1297,6 +1310,17 @@ body {
   
   .hero-overlay {
     pointer-events: auto;
+  }
+  
+  /* Fallback image styling for mobile */
+  .thumbnail-img {
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 }
 
