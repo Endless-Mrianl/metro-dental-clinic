@@ -1254,31 +1254,43 @@ body {
   display: none;
 }
 
-/* Mobile-specific video improvements */
+/* iOS-specific video improvements */
 @media (max-width: 767px) {
+  /* iOS Safari specific fixes */
   .background-video {
-    /* Ensure video works better on mobile */
+    /* iOS Safari requires these specific properties */
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
-    /* Prevent video from being too heavy on mobile */
-    max-width: 100%;
-    max-height: 100%;
+    /* Prevent iOS Safari from showing video controls */
+    -webkit-appearance: none;
+    appearance: none;
+    /* Force hardware acceleration on iOS */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* Optimize for iOS playback */
+    object-fit: cover;
+    object-position: center;
+    /* Prevent iOS Safari from showing video in fullscreen */
+    -webkit-video-playable-inline: true;
+    /* Ensure video doesn't interfere with touch events */
+    pointer-events: none;
+  }
+  
+  /* iOS Safari specific video container */
+  .video-background {
+    /* Ensure proper iOS handling */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    /* Prevent iOS Safari from showing video controls */
+    -webkit-user-select: none;
+    user-select: none;
+    /* Ensure video background covers the full hero section */
+    min-height: 100vh;
+    /* Prevent overflow issues on iOS */
+    overflow: hidden;
     /* Force hardware acceleration */
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    /* Optimize for mobile playback */
-    object-fit: cover;
-    object-position: center;
-  }
-  
-  .video-background {
-    /* Ensure proper mobile handling */
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    /* Ensure video background covers the full hero section */
-    min-height: 100vh;
-    /* Prevent overflow issues */
-    overflow: hidden;
   }
   
   .hero-overlay {
@@ -1287,6 +1299,8 @@ body {
     /* Ensure content is above video */
     position: relative;
     z-index: 2;
+    /* Make sure overlay is touchable on iOS */
+    pointer-events: auto;
   }
   
   .hero {
@@ -1296,20 +1310,13 @@ body {
     align-items: center;
     /* Prevent mobile browser UI interference */
     position: relative;
-  }
-  
-  /* Ensure video doesn't interfere with touch events */
-  .background-video {
-    pointer-events: none;
+    /* iOS Safari specific */
+    -webkit-overflow-scrolling: touch;
   }
   
   /* Make sure overlay is touchable */
   .video-overlay {
     pointer-events: none;
-  }
-  
-  .hero-overlay {
-    pointer-events: auto;
   }
   
   /* Fallback image styling for mobile */
