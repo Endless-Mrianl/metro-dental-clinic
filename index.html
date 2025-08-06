@@ -92,9 +92,9 @@
       <section class="section hero" id="home" aria-label="hero">
         <!-- Video Background -->
         <div class="video-background">
-          <video autoplay muted loop playsinline class="background-video" id="hero-video">
-            <!-- Using the direct raw GitHub video link -->
-            <source src="https://raw.githubusercontent.com/Endless-Mrianl/metro-dental-clinic/main/Dental%20clinic%20_%20Commercial%20video.mp4" type="video/mp4">
+          <video autoplay muted loop playsinline preload="metadata" class="background-video" id="hero-video" poster="./assets/images/hero-bg.png" webkit-playsinline>
+            <!-- Using a more reliable video source -->
+            <source src="https://github.com/Endless-Mrianl/metro-dental-clinic/raw/main/Dental%20clinic%20_%20Commercial%20video.mp4" type="video/mp4">
             <!-- Fallback for browsers that don't support video -->
             <img src="./assets/images/hero-bg.png" alt="Video thumbnail" class="thumbnail-img">
           </video>
