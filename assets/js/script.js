@@ -71,39 +71,69 @@ if (heroVideo) {
   // Detect if device is mobile
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   
-  // Mobile-specific video handling
-  if (isMobile) {
-    // For mobile devices, we need to handle autoplay differently
-    heroVideo.addEventListener("loadstart", function() {
-      // Try to play the video
+  // Function to show fallback when video fails
+  function showVideoFallback() {
+    const videoContainer = heroVideo.parentElement;
+    const fallbackImg = videoContainer.querySelector('.thumbnail-img');
+    if (fallbackImg) {
+      fallbackImg.style.display = 'block';
+      heroVideo.style.display = 'none';
+    }
+  }
+  
+  // Function to attempt video playback
+  function attemptVideoPlay() {
+    if (heroVideo.paused) {
       const playPromise = heroVideo.play();
-      
       if (playPromise !== undefined) {
         playPromise.catch(function(error) {
-          console.log("Autoplay prevented:", error);
-          // Show a play button or handle the fallback
-          showVideoFallback();
+          console.log("Video play failed:", error);
+          // On mobile, show fallback if autoplay is blocked
+          if (isMobile) {
+            showVideoFallback();
+          }
         });
       }
+    }
+  }
+  
+  // Mobile-specific video handling
+  if (isMobile) {
+    console.log("Mobile device detected, applying mobile video optimizations");
+    
+    // Set mobile-specific video attributes
+    heroVideo.setAttribute('playsinline', 'true');
+    heroVideo.setAttribute('webkit-playsinline', 'true');
+    heroVideo.setAttribute('x5-playsinline', 'true');
+    
+    // Try to play video when it's loaded
+    heroVideo.addEventListener("loadstart", function() {
+      console.log("Video loadstart on mobile");
+      setTimeout(attemptVideoPlay, 100);
+    });
+    
+    // Try to play when metadata is loaded
+    heroVideo.addEventListener("loadedmetadata", function() {
+      console.log("Video metadata loaded on mobile");
+      setTimeout(attemptVideoPlay, 200);
+    });
+    
+    // Try to play when data is loaded
+    heroVideo.addEventListener("loadeddata", function() {
+      console.log("Video data loaded on mobile");
+      setTimeout(attemptVideoPlay, 300);
     });
     
     // Handle touch events to start video
     heroVideo.addEventListener("touchstart", function() {
-      if (heroVideo.paused) {
-        heroVideo.play().catch(function(error) {
-          console.log("Touch play failed:", error);
-        });
-      }
+      console.log("Touch event on video");
+      attemptVideoPlay();
     });
     
-    // Additional mobile video optimizations
-    heroVideo.addEventListener("loadeddata", function() {
-      // Video data is loaded, try to play
-      if (heroVideo.paused) {
-        heroVideo.play().catch(function(error) {
-          console.log("Mobile video play failed:", error);
-        });
-      }
+    // Handle click events (for some mobile browsers)
+    heroVideo.addEventListener("click", function() {
+      console.log("Click event on video");
+      attemptVideoPlay();
     });
     
     // Handle mobile video errors more gracefully
@@ -116,11 +146,19 @@ if (heroVideo) {
     heroVideo.addEventListener("stalled", function() {
       console.log("Video stalled on mobile");
       // Try to reload the video
-      heroVideo.load();
+      setTimeout(() => {
+        heroVideo.load();
+        setTimeout(attemptVideoPlay, 500);
+      }, 1000);
     });
+    
+    // Additional mobile optimization: try to play after a delay
+    setTimeout(attemptVideoPlay, 1000);
     
   } else {
     // Desktop video handling
+    console.log("Desktop device detected");
+    
     // Wait for video to be loaded
     heroVideo.addEventListener("loadedmetadata", function() {
       // Set video to start from 20 seconds
@@ -142,41 +180,17 @@ if (heroVideo) {
     });
   }
   
-  // Handle video errors
+  // Handle video errors for all devices
   heroVideo.addEventListener("error", function() {
     console.log("Video error occurred");
     showVideoFallback();
   });
   
-  // Function to show fallback when video fails
-  function showVideoFallback() {
-    const videoContainer = heroVideo.parentElement;
-    const fallbackImg = videoContainer.querySelector('.thumbnail-img');
-    if (fallbackImg) {
-      fallbackImg.style.display = 'block';
-      heroVideo.style.display = 'none';
-    }
-  }
-  
-  // Mobile-specific video loading optimization
-  if (isMobile) {
-    // Set video properties for better mobile performance
-    heroVideo.setAttribute('webkit-playsinline', 'true');
-    heroVideo.setAttribute('playsinline', 'true');
-    heroVideo.setAttribute('muted', 'true');
-    heroVideo.setAttribute('loop', 'true');
-    
-    // Try to load video with lower quality for mobile
-    heroVideo.preload = 'metadata';
-    
-    // Handle mobile video loading timeout
-    setTimeout(function() {
-      if (heroVideo.readyState < 2) { // HAVE_CURRENT_DATA
-        console.log("Mobile video loading timeout, showing fallback");
-        showVideoFallback();
-      }
-    }, 5000); // 5 second timeout
-  }
+  // Handle video abort
+  heroVideo.addEventListener("abort", function() {
+    console.log("Video aborted");
+    showVideoFallback();
+  });
 }
 
 
