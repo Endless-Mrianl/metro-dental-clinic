@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Video Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    
+    .test-container {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .test-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    
+    .test-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 2;
+    }
+    
+    .test-content {
+      position: relative;
+      z-index: 3;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    .test-button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <video autoplay muted loop playsinline preload="metadata" class="test-video" id="test-video" poster="./assets/images/hero-bg.png" webkit-playsinline>
+      <source src="https://github.com/Endless-Mrianl/metro-dental-clinic/raw/main/Dental%20clinic%20_%20Commercial%20video.mp4" type="video/mp4">
+    </video>
+    <div class="test-overlay"></div>
+    <div class="test-content">
+      <h1>Mobile Video Test</h1>
+      <p>If you can see this text over a video background, the mobile video is working!</p>
+      <button class="test-button" onclick="toggleVideo()">Toggle Video</button>
+      <button class="test-button" onclick="checkVideoStatus()">Check Status</button>
+      <div id="status"></div>
+    </div>
+  </div>
+
+  <script>
+    const testVideo = document.querySelector("#test-video");
+    const statusDiv = document.querySelector("#status");
+    
+    function toggleVideo() {
+      if (testVideo.paused) {
+        testVideo.play().then(() => {
+          statusDiv.innerHTML = "Video playing";
+        }).catch(error => {
+          statusDiv.innerHTML = "Play failed: " + error.message;
+        });
+      } else {
+        testVideo.pause();
+        statusDiv.innerHTML = "Video paused";
+      }
+    }
+    
+    function checkVideoStatus() {
+      const status = `
+        Ready State: ${testVideo.readyState}<br>
+        Network State: ${testVideo.networkState}<br>
+        Paused: ${testVideo.paused}<br>
+        Current Time: ${testVideo.currentTime}<br>
+        Duration: ${testVideo.duration}<br>
+        Error: ${testVideo.error ? testVideo.error.message : 'None'}
+      `;
+      statusDiv.innerHTML = status;
+    }
+    
+    // Mobile detection
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      console.log("Mobile device detected");
+      
+      testVideo.addEventListener("loadstart", function() {
+        console.log("Video loadstart on mobile");
+        const playPromise = testVideo.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(function(error) {
+            console.log("Mobile autoplay prevented:", error);
+            statusDiv.innerHTML = "Autoplay prevented on mobile. Tap the video to play.";
+          });
+        }
+      });
+      
+      testVideo.addEventListener("touchstart", function() {
+        if (testVideo.paused) {
+          testVideo.play().catch(function(error) {
+            console.log("Touch play failed:", error);
+          });
+        }
+      });
+    }
+    
+    // Check initial status
+    setTimeout(checkVideoStatus, 2000);
+  </script>
+</body>
+</html> 
