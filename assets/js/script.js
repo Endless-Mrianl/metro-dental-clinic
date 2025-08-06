@@ -70,6 +70,8 @@ const heroVideo = document.querySelector("#hero-video");
 if (heroVideo) {
   // Detect if device is mobile
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  // Detect iOS specifically
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   
   // Function to show fallback when video fails
   function showVideoFallback() {
@@ -97,9 +99,108 @@ if (heroVideo) {
     }
   }
   
-  // Mobile-specific video handling
-  if (isMobile) {
-    console.log("Mobile device detected, applying mobile video optimizations");
+  // iOS-specific video handling
+  if (isIOS) {
+    console.log("iOS device detected, applying iOS-specific video optimizations");
+    
+    // Set iOS-specific video attributes
+    heroVideo.setAttribute('playsinline', 'true');
+    heroVideo.setAttribute('webkit-playsinline', 'true');
+    heroVideo.setAttribute('muted', 'true');
+    heroVideo.setAttribute('autoplay', 'autoplay');
+    heroVideo.setAttribute('loop', 'true');
+    
+    // iOS Safari requires user interaction for autoplay
+    let userInteracted = false;
+    
+    // Track user interaction
+    function markUserInteraction() {
+      userInteracted = true;
+      console.log("User interaction detected on iOS");
+    }
+    
+    // Add event listeners for user interaction
+    document.addEventListener('touchstart', markUserInteraction, { once: true });
+    document.addEventListener('touchend', markUserInteraction, { once: true });
+    document.addEventListener('click', markUserInteraction, { once: true });
+    document.addEventListener('scroll', markUserInteraction, { once: true });
+    
+    // iOS-specific video event handling
+    heroVideo.addEventListener("loadstart", function() {
+      console.log("Video loadstart on iOS");
+      if (userInteracted) {
+        setTimeout(attemptVideoPlay, 100);
+      }
+    });
+    
+    heroVideo.addEventListener("loadedmetadata", function() {
+      console.log("Video metadata loaded on iOS");
+      if (userInteracted) {
+        setTimeout(attemptVideoPlay, 200);
+      }
+    });
+    
+    heroVideo.addEventListener("loadeddata", function() {
+      console.log("Video data loaded on iOS");
+      if (userInteracted) {
+        setTimeout(attemptVideoPlay, 300);
+      }
+    });
+    
+    // Handle touch events specifically for iOS
+    heroVideo.addEventListener("touchstart", function(e) {
+      console.log("Touch event on video (iOS)");
+      markUserInteraction();
+      attemptVideoPlay();
+    });
+    
+    heroVideo.addEventListener("touchend", function(e) {
+      console.log("Touch end on video (iOS)");
+      markUserInteraction();
+      attemptVideoPlay();
+    });
+    
+    // Handle click events for iOS
+    heroVideo.addEventListener("click", function() {
+      console.log("Click event on video (iOS)");
+      markUserInteraction();
+      attemptVideoPlay();
+    });
+    
+    // iOS-specific error handling
+    heroVideo.addEventListener("error", function(e) {
+      console.log("iOS video error:", e);
+      showVideoFallback();
+    });
+    
+    // iOS-specific stalled handling
+    heroVideo.addEventListener("stalled", function() {
+      console.log("Video stalled on iOS");
+      if (userInteracted) {
+        setTimeout(() => {
+          heroVideo.load();
+          setTimeout(attemptVideoPlay, 500);
+        }, 1000);
+      }
+    });
+    
+    // Try to play after user interaction with delays
+    setTimeout(() => {
+      if (userInteracted) {
+        attemptVideoPlay();
+      }
+    }, 2000);
+    
+    // Additional iOS optimization: try to play when page becomes visible
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden && userInteracted) {
+        attemptVideoPlay();
+      }
+    });
+    
+  } else if (isMobile) {
+    // Android mobile video handling
+    console.log("Android mobile device detected, applying mobile video optimizations");
     
     // Set mobile-specific video attributes
     heroVideo.setAttribute('playsinline', 'true');
